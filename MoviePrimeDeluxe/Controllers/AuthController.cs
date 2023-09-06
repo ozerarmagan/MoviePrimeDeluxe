@@ -41,7 +41,7 @@ namespace MoviePrimeDeluxe.Controllers
             return Ok(result);
         }
 
-        [HttpPut("change-password")]
+        [HttpPut("changePassword")]
         [Authorize]
         public async Task<ActionResult<ServiceResponse<bool>>> ChangePassword(UserChangePassword user)
         {
@@ -56,6 +56,14 @@ namespace MoviePrimeDeluxe.Controllers
         //    var result = await _authService.UpdateUser(user.Username, user.OldPassword, user.NewPassword, user.ConfirmPassword);
         //    return Ok(result);
         //}
+
+        [HttpPut("roleForAdmin/{username}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ServiceResponse<bool>>> RoleAdmin([FromRoute] string username)
+        {
+            var result = await _authService.RoleForAdmin(username);
+            return Ok(result);
+        }
 
         [HttpDelete]
         [Authorize]

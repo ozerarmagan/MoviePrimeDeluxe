@@ -3,6 +3,7 @@ using MoviePrimeDeluxe.DataAccess.Abstract;
 using MoviePrimeDeluxe.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,6 +53,19 @@ namespace MoviePrimeDeluxe.DataAccess.Concrete
             _context.Movies.Update(movie);
             await _context.SaveChangesAsync();
             return movie;
+        }
+
+        public async Task<bool> MovieIdExist(int movieId)
+        {
+            return await _context.Movies.AnyAsync(m => m.Id == movieId);
+        }
+
+        public async Task<bool> MovieNameExist(int? movieId, string name)
+        {
+            var asd =  await _context.Movies.Where(m => m.Name.Equals(name)).ToListAsync();
+            if (movieId.HasValue)
+                asd = asd.Where(x => x.Id == movieId).ToList();
+            return asd.Any();
         }
     }
 }

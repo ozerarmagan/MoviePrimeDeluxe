@@ -15,6 +15,7 @@ namespace MoviePrimeDeluxe.Business.Abstract
         Task<ServiceResponse<bool>> ChangePassword(string oldPassword, string newPassword, string confirmPassword);
         int GetUserId();
         string GetUsername();
+        Task<ServiceResponse<bool>> RoleForAdmin(string username);
         Task<ServiceResponse<bool>> DeleteAccount(string password);
     }
 }

@@ -1,62 +1,98 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MoviePrimeDeluxe.Business.Abstract;
-using MoviePrimeDeluxe.DataAccess.Migrations;
-using MoviePrimeDeluxe.Entities;
 
 namespace MoviePrimeDeluxe.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UsersController(IUserService userService) 
+        // private readonly IValidator<WatchedMovieValidator> _watchedMovieValidator;
+        public UsersController(IUserService userService)
+        //, IValidator<WatchedMovieValidator> watchedMovieValidator
         {
             _userService = userService;
+         // _watchedMovieValidator = watchedMovieValidator;
         }
 
-        [HttpGet]
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
         [Route("[action]/{id}")]
+        //public async Task<IActionResult> GetUserById(GetUserByIdDto userDto)
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _userService.GetUserById(id);
-            if (user != null)
+            //var validator = new WatchedMovieValidator();
+            //var validationResult = await validator.ValidateAsync(userDto);
+
+            //{
+            //    if (!validationResult.IsValid)
+            //    {
+            //        return BadRequest(validationResult.Errors);
+            //    }
+            //}
+
+            //var user = await _userService.GetUserById(userDto.userId);
+            //return Ok(user);
+
+            if (id < 1)
             {
-                return Ok(user);
+                return BadRequest("User id can not less than 1.");
             }
-            return NotFound();
+
+            var user = await _userService.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound("User can not be null.");
+            }
+            return Ok(user);
         }
 
         [HttpPost("[action]/{userId}/watched/{movieId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> MarkMovieAsWatched(int userId, int movieId, bool isWatched)
         {
+
+            if(userId < 1 || movieId < 1)
+            {
+                return BadRequest("User or movie id can not less than 1.");
+            }
+
             await _userService.MarkMovieAsWatched(userId, movieId, isWatched);
             return Ok();
+
+            /* 
+            var validationResult = await _watchedMovieValidator.ValidateAsync();
+
+            if(!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
+            await _userService.MarkMovieAsWatched(userId, movieId, isWatched);
+            return Ok();
+            */
         }
 
         [HttpGet("[action]/{userId}/watched")]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> GetWatchedMoviesForUser(int userId)
         {
-            var user = await _userService.GetWatchedMoviesForUser(userId);
-            if (user != null)
+            if (userId < 1)
             {
-                return Ok(user);
+                return BadRequest("User id can not less than 1.");
             }
-            return NotFound();
-        }
 
-        [HttpPut]
-        [Route("[action]/{id}")]
-        public async Task<IActionResult> UpdateUser([FromBody] User user)
-        {
-            if (await _userService.GetUserById(user.Id) != null)
+            var user = await _userService.GetWatchedMoviesForUser(userId);
+
+            if (user == null)
             {
-                return Ok(await _userService.UpdateUser(user));
-            }
-            return NotFound();
+                return NotFound("User can not be null.");
+            }                 
+            return Ok(user);
         }
     }
 }
+

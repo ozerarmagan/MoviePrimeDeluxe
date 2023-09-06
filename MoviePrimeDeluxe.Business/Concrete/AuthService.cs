@@ -77,7 +77,6 @@ namespace MoviePrimeDeluxe.Business.Concrete
         }
 
 
-
         public string GetUsername()
         {
             return _contextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
@@ -91,7 +90,7 @@ namespace MoviePrimeDeluxe.Business.Concrete
         public async Task<ServiceResponse<string>> Login(string username, string password)
         {
             var response = new ServiceResponse<string>();
-            var user = await _context.Users.FirstOrDefaultAsync();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (user == null)
             {
                 return new ServiceResponse<string>
@@ -139,6 +138,32 @@ namespace MoviePrimeDeluxe.Business.Concrete
                 Message = "User creation successfully",
                 Success = true,
             };
+
+        }
+
+        public async Task<ServiceResponse<bool>> RoleForAdmin(string username)
+        {
+            var user = GetUserId();
+            var result = await _context.Users.FirstOrDefaultAsync(x => x.Id == user);
+            var forRole = await _context.Users.FirstOrDefaultAsync(x => x.Username.ToLower().Equals(username.ToLower()));
+            if (result.Role == "Admin")
+            {
+                forRole.Role = "Admin";
+                _context.Users.Update(forRole);
+                await _context.SaveChangesAsync();
+
+                return new ServiceResponse<bool>
+                {
+                    Success = true,
+                    Message = "User's role changed with admin",
+                };
+
+            }
+            return new ServiceResponse<bool>
+            {
+                Success = false,
+            };
+
 
         }
 

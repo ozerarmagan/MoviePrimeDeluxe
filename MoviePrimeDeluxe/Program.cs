@@ -12,6 +12,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MoviePrimeDeluxe.Entities;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using MoviePrimeDeluxe.Validation;
+using Microsoft.AspNetCore.Mvc;
+using MoviePrimeDeluxe.Entities.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -31,13 +36,23 @@ builder.Services.AddDbContext<MoviePrimeDeluxeContext>(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddSingleton<IUserService, UserService>();
-builder.Services.AddSingleton<IUserRepository, UserRepository>();
-builder.Services.AddSingleton<IMovieService, MovieManager>();
-builder.Services.AddSingleton<IMovieRepository, MovieRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMovieService, MovieManager>();
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+//builder.Services.AddScoped<IValidator<Movie>, MovieValidator>();
+//builder.Services.AddScoped<IValidator<UserRegister>, UserValidator>();
+//builder.Services.AddScoped<IValidator<WatchedMovie>, WatchedMovieValidator>();
+
 builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+   options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -60,6 +75,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+//builder.Services.AddIdentity<User, IdentityRole>()
+//    .AddEntityFrameworkStores<MoviePrimeDeluxeContext>()
+//    .AddDefaultTokenProviders();
 
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo

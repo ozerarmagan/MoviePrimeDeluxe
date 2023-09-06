@@ -10,8 +10,10 @@ namespace MoviePrimeDeluxe.Business.Abstract
     public interface IUserService
     {
         Task<User> GetUserById(int id);
-        Task<User> UpdateUser(User user);
         Task MarkMovieAsWatched(int userId, int movieId, bool isWatched);
         Task<List<Movie>> GetWatchedMoviesForUser(int userId);
+
+        Task<bool> UserIdExist(int userId);
+        Task<bool> UsernameExist(string username);
     }
 }

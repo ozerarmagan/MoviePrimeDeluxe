@@ -15,6 +15,8 @@ namespace MoviePrimeDeluxe.DataAccess.Abstract
         Task<Movie> CreateMovie(Movie movie);
         Task<Movie> UpdateMovie(Movie movie);
         Task DeleteMovie(int id);
-        
+
+        Task<bool> MovieNameExist(int? movieId,string name);           
+        Task<bool> MovieIdExist(int movieId);
     }
 }

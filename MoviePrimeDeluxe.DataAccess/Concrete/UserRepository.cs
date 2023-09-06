@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoviePrimeDeluxe.DataAccess.Abstract;
+using MoviePrimeDeluxe.DataAccess.Migrations;
 using MoviePrimeDeluxe.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,11 +33,21 @@ namespace MoviePrimeDeluxe.DataAccess.Concrete
             return watchedMovies;
         }
 
-        public async Task<User> UpdateUser(User user)
+        public async Task MarkMovieAsWatched(int userId, int movieId, bool isWatched)
         {
-            _context.Users.Update(user);
+            var watchedMovie = new WatchedMovie { UserId = userId, MovieId = movieId, IsWatched = isWatched };
+            _context.WatchedMovies.Add(watchedMovie);
             await _context.SaveChangesAsync();
-            return user;
+        }
+
+        public async Task<bool> UserIdExist(int userId)
+        {
+            return await _context.Users.AnyAsync(m => m.Id == userId);
+        }
+
+        public async Task<bool> UsernameExist(string username)
+        {
+            return await _context.Users.AnyAsync(u => u.Username == username);
         }
     }
 }
